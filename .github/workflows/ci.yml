@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+        env:
+          SESSION_SECRET: ci-session-secret-ci-session-secret-00
+          AI_PROVIDER: mock
+      - name: HTTP smoke test against the production build
+        env:
+          SESSION_SECRET: ci-session-secret-ci-session-secret-00
+          HF_DATA_DIR: /tmp/hf-smoke
+          HF_DEMO_MODE: "true"
+          HF_SKIP_CONFIG_CHECK: "true"
+        run: |
+          mkdir -p "$HF_DATA_DIR"
+          npx next start -p 43123 &
+          for i in $(seq 1 60); do curl -sf http://127.0.0.1:43123/api/health >/dev/null && break; sleep 1; done
+          npm run test:smoke -- http://127.0.0.1:43123
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply migrations to PostgreSQL and run SQL checks
+        run: npm run test:db
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          CI: true
+          SESSION_SECRET: ci-session-secret-ci-session-secret-00
+          AI_PROVIDER: mock
+          DATA_PROVIDER: demo
