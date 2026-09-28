@@ -4,6 +4,12 @@ async function waitForApp(page: Page) {
   await expect(page.locator("[data-hydrated='true']")).toBeVisible();
 }
 
+/** On phones, nothing may make the page wider than the screen (it causes sideways wobble). */
+async function expectNoSidewaysScroll(page: Page) {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow, "page is wider than the screen").toBeLessThanOrEqual(1);
+}
+
 test("marketing page explains the product without clinical claims", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Prior Authorization Workflows, Powered by AI" })).toBeVisible();
@@ -15,16 +21,18 @@ test("demo login opens a populated dashboard", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "View Demo" }).first().click();
   await expect(page).toHaveURL(/\/dashboard/);
-  await expect(page.getByRole("heading", { name: "Operations dashboard" })).toBeVisible();
-  await expect(page.getByText("Total authorizations")).toBeVisible();
-  await expect(page.getByText("Synthetic demo data")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Good (morning|afternoon|evening)/);
+  await expect(page.getByText("Payer decisions overdue")).toBeVisible();
+  await expect(page.getByText("Work to do first")).toBeVisible();
+  await expectNoSidewaysScroll(page);
+  await expect(page.getByText("Synthetic demo data").first()).toBeVisible();
 });
 
 test("create a patient and an authorization, then move status and run mock AI", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("Email").fill("specialist@northstar.demo");
   await page.getByLabel("Password").fill("Northstar-demo-2026");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard/);
   await waitForApp(page);
 
@@ -43,7 +51,8 @@ test("create a patient and an authorization, then move status and run mock AI", 
   await page.goto("/authorizations/new");
   await waitForApp(page);
   await page.getByLabel("Patient").selectOption({ label: `Case, Eden · ${mrn}` });
-  await page.getByLabel("Payer", { exact: true }).selectOption({ index: 1 });
+  // A commercial payer: no extra payer-required documents, so one clinical note completes the packet.
+  await page.getByLabel("Payer", { exact: true }).selectOption({ label: "Northwind Health Plan" });
   await page.getByLabel("Member ID").fill("MEM-44001");
   await page.getByLabel("Ordering provider").selectOption({ index: 1 });
   await page.getByLabel("Place of service").selectOption("24");
@@ -56,9 +65,12 @@ test("create a patient and an authorization, then move status and run mock AI", 
   await page.getByRole("button", { name: "Create authorization" }).click();
   await expect(page.getByRole("heading", { level: 1 })).toContainText("PA-");
   await waitForApp(page);
+  await expectNoSidewaysScroll(page);
 
   // The packet checklist blocks review until clinical support is attached.
   await expect(page.getByLabel("Packet checklist")).toContainText("Clinical support attached");
+  await expect(page.getByLabel("Packet checklist")).toContainText("6 of 7 ready");
+  await expect(page.getByRole("button", { name: "Finish packet" })).toBeVisible();
   await page.getByRole("button", { name: "Change status" }).click();
   await page.getByLabel("Next status").selectOption("READY_FOR_REVIEW");
   await page.getByLabel("Reason").fill("Ready for internal review");
@@ -73,13 +85,15 @@ test("create a patient and an authorization, then move status and run mock AI", 
     buffer: Buffer.from("Synthetic note. Symptoms for 8 weeks; conservative therapy failed."),
   });
   await page.getByRole("button", { name: "Upload", exact: true }).click();
-  await expect(page.getByLabel("Packet checklist")).toContainText("✓ Clinical support attached");
+  await expect(page.getByLabel("Packet checklist")).toContainText("7 of 7 ready");
+  await expect(page.getByRole("button", { name: "Mark ready for review" })).toBeVisible();
 
   await page.getByRole("button", { name: "Change status" }).click();
   await page.getByLabel("Next status").selectOption("READY_FOR_REVIEW");
   await page.getByLabel("Reason").fill("Ready for internal review");
   await page.getByRole("button", { name: "Update status" }).click();
   await expect(page.getByText("Ready for review").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Submit to payer" })).toBeVisible();
 
   await page.getByRole("button", { name: "Change status" }).click();
   await page.getByLabel("Next status").selectOption("SUBMITTED");
@@ -87,6 +101,7 @@ test("create a patient and an authorization, then move status and run mock AI", 
   await page.getByRole("button", { name: "Update status" }).click();
   await expect(page.getByText("Submitted").first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Edit" })).toHaveCount(0);
+  await expect(page.getByLabel("Case progress")).toContainText("With payer");
 
   // Approvals go through the decision form, which records the reference and approved window.
   await page.getByRole("button", { name: "Record decision" }).click();
@@ -121,7 +136,7 @@ test("search and analytics stay inside the shell", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("Email").fill("owner@northstar.demo");
   await page.getByLabel("Password").fill("Northstar-demo-2026");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard/);
   await waitForApp(page);
   await page.keyboard.press("Control+K");
@@ -130,5 +145,5 @@ test("search and analytics stay inside the shell", async ({ page }) => {
   await page.keyboard.press("Escape");
   await page.goto("/analytics");
   await expect(page.getByRole("heading", { name: "Analytics" })).toBeVisible();
-  await expect(page.getByText("Approval rate")).toBeVisible();
+  await expect(page.getByText("Approval rate").first()).toBeVisible();
 });

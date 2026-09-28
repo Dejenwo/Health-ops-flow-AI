@@ -66,8 +66,8 @@ function isAnalysis(value: unknown): value is AiAnalysis {
   return typeof value === "object" && value !== null && "caseSummary" in value;
 }
 
-/** Dialogs open as bottom sheets on phones. */
-const SHEET = "sm:max-w-lg max-sm:top-auto max-sm:bottom-0 max-sm:max-w-full max-sm:max-h-[88vh] max-sm:translate-y-0 max-sm:overflow-y-auto max-sm:rounded-b-none";
+/** Dialogs stay centered on phones, use the full width and scroll when tall. */
+const SHEET = "sm:max-w-lg max-sm:max-h-[85vh] max-sm:overflow-y-auto";
 
 export function AuthorizationWorkspace({
   data,
@@ -306,8 +306,9 @@ export function AuthorizationWorkspace({
             <TabsTrigger key={tab} value={tab} className="capitalize">{tab === "ai" ? "AI analysis" : tab}</TabsTrigger>
           ))}
         </TabsList>
-        <TabsContent value="overview" className="mt-4 grid gap-4 md:grid-cols-2">
-          <section className="md:col-span-2 rounded-xl border bg-card p-4 text-sm">
+        {/* grid-cols-1 is minmax(0, 1fr): without it, the wide lines table stretches the column past the phone screen. */}
+        <TabsContent value="overview" className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <section className="min-w-0 rounded-xl border bg-card p-4 text-sm md:col-span-2">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="font-semibold">Service lines</h2>
               <p className="text-xs text-muted-foreground">
@@ -563,7 +564,7 @@ export function AuthorizationWorkspace({
             <Label htmlFor="reschedule-reason">Reason</Label>
             <Textarea id="reschedule-reason" name="reason" required minLength={3} />
             <FieldMessage message={fieldErrors.reason ?? fieldErrors["reason"]} />
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save date</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save date</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -590,7 +591,7 @@ export function AuthorizationWorkspace({
             <FieldMessage message={fieldErrors.scheduledAt ?? fieldErrors["scheduledAt"]} />
             <Label htmlFor="p2p-notes">Notes</Label>
             <Textarea id="p2p-notes" name="notes" defaultValue={auth.peerToPeerNotes} />
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -607,7 +608,7 @@ export function AuthorizationWorkspace({
             <select id="letter-doc" name="documentId" className={fieldClass}>
               {letters.map((document) => <option key={document.id} value={document.id}>{document.filename}</option>)}
             </select>
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Attach</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Attach</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -637,7 +638,7 @@ export function AuthorizationWorkspace({
             <Label htmlFor="supersede-reason">What needs to change?</Label>
             <Textarea id="supersede-reason" name="reason" required minLength={3} />
             <FieldMessage message={fieldErrors.reason ?? fieldErrors["reason"]} />
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Create replacement draft</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Create replacement draft</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -654,7 +655,7 @@ export function AuthorizationWorkspace({
               <option value="">Unassigned</option>
               {members.map((member) => <option key={member.id} value={member.id}>{member.label}</option>)}
             </select>
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save assignment</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save assignment</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -668,7 +669,7 @@ export function AuthorizationWorkspace({
             void run(() => noteAction({ authorizationId: auth.id, content }));
           }}>
             <Textarea name="content" required minLength={1} rows={4} />
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save note</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save note</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -699,7 +700,7 @@ export function AuthorizationWorkspace({
               <option value="">Unassigned</option>
               {members.map((member) => <option key={member.id} value={member.id}>{member.label}</option>)}
             </select>
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Create task</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Create task</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -719,7 +720,7 @@ export function AuthorizationWorkspace({
               {DOCUMENT_CATEGORIES.map((category) => <option key={category} value={category}>{DOCUMENT_CATEGORY_LABEL[category]}</option>)}
             </select>
             <p className="text-xs text-muted-foreground">PDF, PNG, JPEG, TIFF, TXT, or DOCX. 10 MB maximum.</p>
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Upload</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Upload</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -739,7 +740,7 @@ export function AuthorizationWorkspace({
           }}>
             <Input name="payerReference" required placeholder="Payer reference" />
             <Textarea name="summary" required minLength={3} placeholder="What did staff learn?" />
-            <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save response</Button>
+            <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save response</Button>
           </form>
         </DialogContent>
       </Dialog>
@@ -778,7 +779,7 @@ function StatusForm({
         <Textarea id="reason" name="reason" required minLength={3} aria-invalid={reasonError ? true : undefined} />
         <FieldMessage message={reasonError} />
       </div>
-      <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Update status</Button>
+      <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Update status</Button>
     </form>
   );
 }
@@ -884,7 +885,7 @@ function DecisionForm({
       <Label htmlFor="decision-note">Note for the history</Label>
       <Textarea id="decision-note" name="reason" required minLength={3} rows={2} />
             <FieldMessage message={fieldErrors.reason ?? fieldErrors["reason"]} />
-      <Button type="submit" disabled={pending} className="max-sm:sticky max-sm:bottom-0 max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save decision</Button>
+      <Button type="submit" disabled={pending} className="max-sm:w-full">{pending ? <Loader2 className="animate-spin" aria-hidden /> : null}Save decision</Button>
     </form>
   );
 }

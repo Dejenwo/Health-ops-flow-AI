@@ -40,7 +40,7 @@ export function PatientForm({ id, values, payers }: { id?: string; values?: Part
 
   return (
     <form
-      className="grid gap-4 md:grid-cols-2"
+      className="grid grid-cols-1 gap-4 md:grid-cols-2"
       onSubmit={form.handleSubmit(async (data) => {
         setError(null);
         const result = await savePatientAction(id ?? null, data);

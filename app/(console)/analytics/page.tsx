@@ -50,7 +50,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           </Card>
         ))}
       </section>
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle>Status distribution</CardTitle></CardHeader>
           <CardContent><StatusChart data={data.statusDistribution.map((item) => ({ name: STATUS_LABEL[item.name as keyof typeof STATUS_LABEL] ?? item.name, count: item.count }))} /></CardContent>
@@ -60,7 +60,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           <CardContent><VolumeChart data={data.volumeTrend} /></CardContent>
         </Card>
       </section>
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Breakdown title="Cases by payer" rows={data.byPayer} />
         <Breakdown title="Cases by procedure" rows={data.byProcedure} />
         <Breakdown title="Cases by specialist" rows={data.bySpecialist} />

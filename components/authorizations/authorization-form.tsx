@@ -380,7 +380,7 @@ function Section({ id, title, columns = 2, children }: { id: string; title: stri
   return (
     <section id={id} className="scroll-mt-20 space-y-3">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{title}</h2>
-      <div className={columns === 2 ? "grid gap-4 md:grid-cols-2" : "space-y-4"}>{children}</div>
+      <div className={columns === 2 ? "grid grid-cols-1 gap-4 md:grid-cols-2" : "space-y-4"}>{children}</div>
     </section>
   );
 }

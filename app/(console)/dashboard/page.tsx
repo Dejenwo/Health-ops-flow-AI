@@ -99,7 +99,7 @@ export default async function DashboardPage() {
         <p className="max-w-[70ch] text-muted-foreground">{summary.charAt(0).toUpperCase() + summary.slice(1)}</p>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <MetricGroup
           title="Payer clock"
           description="Submitted cases against each payer's decision timeframe"
@@ -132,7 +132,7 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.25fr_0.75fr]">
         <Card>
           <CardHeader>
             <CardTitle>Work to do first</CardTitle>
@@ -180,7 +180,7 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <section className="grid gap-4 xl:grid-cols-3" aria-label="Trends">
+      <section className="grid grid-cols-1 gap-4 xl:grid-cols-3" aria-label="Trends">
         <Card>
           <CardHeader><CardTitle>Status distribution</CardTitle></CardHeader>
           <CardContent>
@@ -197,7 +197,7 @@ export default async function DashboardPage() {
         </Card>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader><CardTitle>Urgent cases</CardTitle></CardHeader>
           <CardContent className="space-y-2">

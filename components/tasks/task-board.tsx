@@ -72,7 +72,7 @@ export function TaskBoard({
           <Button type="submit">Create task</Button>
         </form>
       ) : null}
-      <div className="grid gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
         {columns.map((column) => (
           <section key={column.key} className="space-y-2">
             <h2 className="text-sm font-medium">{column.title} <span className="text-muted-foreground">{column.tasks.length}</span></h2>
