@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.0 — Integration layer and eligibility checks
+
+- Integration hub: per-organization connections with encrypted API keys, vendor adapters behind
+  one contract, retries with backoff, and a metadata-only message log (no patient details).
+- Eligibility checks (X12 270/271) through a clearinghouse: Stedi adapter plus a built-in
+  simulator the demo clinic uses out of the box.
+- Integrations page: connect, test and monitor the clearinghouse; recent calls with timing and
+  errors. The request-only catalog stays below as "More integrations".
+- Case page: Eligibility card with coverage status, plan, dates, the payer's prior-auth
+  indicator, history, and a plain explanation when Payer ID, member ID or NPI is missing.
+- Postgres tables with RLS; the key column is hidden from the Data API.
+- 8 new tests (86 total) with a negative control; docs in docs/INTEGRATIONS.md.
+
 ## 0.6.0 — Bulk import and "does this need prior auth?"
 
 ### Bulk import (Import data page, Import CSV buttons on Patients, Providers and Payers)

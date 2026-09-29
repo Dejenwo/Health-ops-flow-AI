@@ -126,6 +126,9 @@ export function emptyDatabase(): Database {
     passwordResetTokens: [],
     contactRequests: [],
     payerAuthRules: [],
+    integrationEndpoints: [],
+    eligibilityChecks: [],
+    integrationMessages: [],
     schemaVersion: CURRENT_SCHEMA_VERSION,
   };
 }
@@ -398,6 +401,24 @@ export function createSeedDatabase(now = new Date()): Database {
       });
     }
   }
+
+  // The demo clinic has the eligibility simulator connected, so "Check eligibility" works out of the box.
+  db.integrationEndpoints.push({
+    id: id(),
+    organizationId: northstarId,
+    kind: "clearinghouse",
+    provider: "simulator",
+    environment: "test",
+    secretEncrypted: null,
+    enabled: true,
+    lastSuccessAt: null,
+    lastErrorAt: null,
+    lastError: "",
+    createdAt: stamp,
+    updatedAt: stamp,
+    createdBy: adminId,
+    updatedBy: null,
+  });
 
   const cases: AuthorizationCase[] = [];
   const DECIDED_STATUSES: AuthStatus[] = ["APPROVED", "PARTIALLY_APPROVED", "DENIED", "CLOSED", "APPEALED"];

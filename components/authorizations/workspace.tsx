@@ -9,7 +9,8 @@ import { CaseAlerts, DetailCard, PacketChecklist, StageTracker, type ChecklistIt
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, CircleSlash, Loader2, MinusCircle, Pencil, Upload } from "lucide-react";
 import type { CaseAlert } from "@/lib/domain/sla";
-import type { PayerAuthRule } from "@/lib/domain/types";
+import type { EligibilityCheck, PayerAuthRule } from "@/lib/domain/types";
+import { EligibilityCard } from "@/components/authorizations/eligibility-card";
 import { authRequirement } from "@/lib/domain/auth-rules";
 import { RequirementBadge } from "@/components/imports/requirement-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -77,8 +78,12 @@ export function AuthorizationWorkspace({
   canTransition,
   canAi,
   authRules = [],
+  eligibility = [],
+  eligibilityAvailable = false,
 }: {
   authRules?: PayerAuthRule[];
+  eligibility?: EligibilityCheck[];
+  eligibilityAvailable?: boolean;
   data: Workspace;
   members: { id: string; label: string }[];
   canWrite: boolean;
@@ -368,6 +373,7 @@ export function AuthorizationWorkspace({
               ))}
             </ul>
           </section>
+          <EligibilityCard authorizationId={auth.id} history={eligibility} available={eligibilityAvailable} canRun={canWrite} />
           <DetailCard title="Payer decision" rows={[
             ["Outcome", auth.decisionOutcome ? <StatusBadge key="o" status={auth.decisionOutcome} /> : "Not decided"],
             ["Payer reference", auth.payerReference || "—"],

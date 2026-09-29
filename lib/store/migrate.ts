@@ -20,6 +20,11 @@ export function migrateDatabase(raw: unknown): { db: Database; migrated: boolean
   if (from < 3) toV3(db);
   if (from < 4) for (const org of db.organizations as unknown as Loose[]) org.scim ??= null;
   if (from < 5) (db as Loose).payerAuthRules ??= [];
+  if (from < 6) {
+    (db as Loose).integrationEndpoints ??= [];
+    (db as Loose).eligibilityChecks ??= [];
+    (db as Loose).integrationMessages ??= [];
+  }
   db.schemaVersion = CURRENT_SCHEMA_VERSION;
   return { db, migrated: true };
 }

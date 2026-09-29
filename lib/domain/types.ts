@@ -571,6 +571,72 @@ export interface IntegrationConnection {
   updatedAt: string;
 }
 
+export const CLEARINGHOUSE_PROVIDERS = ["simulator", "stedi"] as const;
+export type ClearinghouseProvider = (typeof CLEARINGHOUSE_PROVIDERS)[number];
+
+/** A live connection to an outside system. One clearinghouse per organization for now. */
+export interface IntegrationEndpoint {
+  id: string;
+  organizationId: string;
+  kind: "clearinghouse";
+  provider: ClearinghouseProvider;
+  environment: "test" | "production";
+  /** AES-GCM encrypted API key. Never sent to the browser. */
+  secretEncrypted: string | null;
+  enabled: boolean;
+  lastSuccessAt: string | null;
+  lastErrorAt: string | null;
+  lastError: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  updatedBy: string | null;
+}
+
+export type CoverageStatus = "ACTIVE" | "INACTIVE" | "UNKNOWN" | "ERROR";
+
+/**
+ * Result of an eligibility and benefits check (X12 270/271 through a clearinghouse).
+ * Only the fields staff act on are kept; the full payer response is not stored.
+ */
+export interface EligibilityCheck {
+  id: string;
+  organizationId: string;
+  patientId: string;
+  payerId: string;
+  authorizationId: string | null;
+  provider: ClearinghouseProvider;
+  environment: "test" | "production";
+  status: CoverageStatus;
+  planName: string;
+  coverageStart: string | null;
+  coverageEnd: string | null;
+  /** Whether the payer's response says prior auth / certification applies to the checked service. */
+  authIndicator: "REQUIRED" | "NOT_REQUIRED" | "UNKNOWN";
+  notes: string[];
+  errorMessage: string;
+  traceId: string;
+  checkedAt: string;
+  checkedBy: string;
+}
+
+/** Metadata about each message exchanged with an outside system. Payloads are never stored. */
+export interface IntegrationMessage {
+  id: string;
+  organizationId: string;
+  endpointId: string | null;
+  provider: string;
+  operation: string;
+  direction: "OUTBOUND" | "INBOUND";
+  outcome: "SUCCESS" | "FAILED";
+  httpStatus: number | null;
+  attempts: number;
+  durationMs: number;
+  traceId: string;
+  error: string;
+  createdAt: string;
+}
+
 export interface Subscription {
   id: string;
   organizationId: string;
@@ -636,6 +702,9 @@ export interface Database {
   passwordResetTokens: PasswordResetToken[];
   contactRequests: ContactRequest[];
   payerAuthRules: PayerAuthRule[];
+  integrationEndpoints: IntegrationEndpoint[];
+  eligibilityChecks: EligibilityCheck[];
+  integrationMessages: IntegrationMessage[];
   /** Schema version of the stored document, used for forward migrations of the file store. */
   schemaVersion: number;
 }
@@ -649,7 +718,7 @@ export interface RequestContext {
   organization: Organization;
 }
 
-export const CURRENT_SCHEMA_VERSION = 5;
+export const CURRENT_SCHEMA_VERSION = 6;
 
 export interface PageResult<T> {
   items: T[];

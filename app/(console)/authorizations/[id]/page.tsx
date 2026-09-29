@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { AuthorizationWorkspace } from "@/components/authorizations/workspace";
 import { rulesForOrganization } from "@/lib/services/auth-rules";
+import { eligibilityAvailable, eligibilityHistory } from "@/lib/services/integrations";
 import { can } from "@/lib/domain/permissions";
 import { getAuthorizationWorkspace, recordAuthorizationView } from "@/lib/services/authorizations";
 import { activeMembers } from "@/lib/services/directory";
@@ -21,6 +22,8 @@ export default async function AuthorizationDetailPage({ params }: { params: Prom
   return (
     <AuthorizationWorkspace
       authRules={rulesForOrganization(ctx)}
+      eligibility={eligibilityHistory(ctx, id)}
+      eligibilityAvailable={eligibilityAvailable(ctx)}
       data={data}
       members={members}
       canWrite={can(ctx.role, "authorizations.write")}
